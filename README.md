@@ -4,6 +4,16 @@ It is developed in Typescript and the entities configuration is with decorators.
 
 NOTE: It is not an ORM, it only transforms the recordset in the specified entities.
 
+# How to install
+npm:
+```
+npm install @feimsoft/remapjs
+```
+yarn:
+```
+yarn add @feimsoft/remapjs
+```
+
 # How to use
 ## Define your entity model
 
