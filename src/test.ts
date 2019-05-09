@@ -1,45 +1,88 @@
-import { Column, ManyToOne, OneToMany } from "./decorators";
+import "reflect-metadata";
+
+import { Column, ManyToOne } from "./index";
 import { remap } from "./remap";
 
-class ManyRelationEntity {
-    @Column({ name: 'id' }) id: number;
-    @Column({ name: 'nombre' }) name: string;
-    @Column() dbId: number;
+export class Desglose {
+    @Column({ name: 'Principal' })
+    principal: number;
+    @Column({ name: 'Recargo' })
+    recargo: number;
+    @Column({ name: 'Intereses' })
+    intereses: number;
+    @Column({ name: 'Costas' })
+    costas: number;
+    @Column({ name: 'Pendiente' })
+    pendiente: number;
+    @Column({ name: 'Pagado' })
+    pagado: number;
 }
 
-class RelDbEntity {
-    @Column({ name: 'id' }) id: number;
-    @Column({ name: 'nombre' }) name: string;
-}
+export class Recibo {
+    @Column({ name: 'idRecibo' })
+    id: number;
 
-class DbEntity {
-    @Column({ name: 'id' }) id: number;
-    @Column({ name: 'nombre' }) name: string;
-    @Column({ name: 'relacionId' }) relationId: string;
+    @Column({ name: 'Nif' })
+    nif: string;
 
-    @ManyToOne(RelDbEntity, { property: 'relationId', matchProperty: 'id' })
-    relation: RelDbEntity;
+    @Column({ name: 'Referencia' })
+    referencia: string;
 
-    @OneToMany(ManyRelationEntity, { property: 'id', inverseProperty: 'dbId' })
-    relationsMany: ManyRelationEntity[];
+    @Column({ name: 'CodigoMunicipio' })
+    codigoMunicipio: string;
+
+    @Column({ name: 'DireccionTributaria' })
+    direccionTributaria: string;
+
+    @Column({ name: 'Ejercicio' })
+    ejercicio: string;
+
+    @Column({ name: 'Tipo' })
+    tipo: string;
+
+    @Column({ name: 'Estado' })
+    estado: string;
+
+    @Column({ name: 'Objeto' })
+    objeto: string;
+
+    @Column({ name: 'IdConcepto' })
+    idConcepto: number;
+
+    @Column({ name: 'FechaInicio' })
+    fechaInicio: Date | null;
+
+    @Column({ name: 'FechaFin' })
+    fechaFin: Date | null;
+
+    @ManyToOne(Desglose)
+    desglose: Desglose;
 }
 
 const rawData = [{
-    id: 0,
-    nombre: 'test',
-    relacionId: 1,
-}, {
-    id: 1,
-    nombre: 'test 2',
-    relacionId: 0,
-}];
+    idRecibo: 26166349,
+    CodigoMunicipio: '040',
+    Ejercicio: 2019,
+    Tipo: 'Tributo',
+    Estado: '01',
+    IdConcepto: 61,
+    DireccionTributaria: 'CE GUILLEM MASSOT Nº 0056  Piso 04 Pta. 0C',
+    Referencia: '040-19-07-0119672',
+    Nif: '43227891N',
+    FechaInicio: '2019-03-15T00:00:00.000Z',
+    FechaFin: '2019-05-15T00:00:00.000Z',
+    Objeto: '8890-DJC       MAZDA MAZDA         ',
+    'Desglose.Costas': 0,
+    'Desglose.Principal': 143.88,
+    'Desglose.Recargo': 0,
+    'Desglose.Intereses': 0,
+    'Desglose.Pendiente': 143.88,
+    'Desglose.Pagado': 0
+}
+];
 
-const outputData = remap(DbEntity, rawData, {
-    sources: [
-        { type: RelDbEntity, records: [{ id: 0, nombre: 'Prueba rel 1' }, { id: 1, nombre: 'Prueba rel 2' }] },
-        { type: ManyRelationEntity, records: [{ id: 0, dbId: 1, nombre: 'Prueba rel complex 1' }, { id: 3, dbId: 0, nombre: 'Prueba rel complex 3' }] }
-    ]
+const outputData = remap(Recibo, rawData, {
+    ignoreCase: true
 });
 
-console.dir(outputData[0]);
-console.dir(outputData[1]);
+console.dir(outputData);

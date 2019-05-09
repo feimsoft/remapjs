@@ -1,20 +1,12 @@
+import { getTargetConfiguration, OneToManyOptions } from "src/utils";
+
 const metadataKey = Symbol('one-to-many');
 
-interface OneToManyOptions {
-    /** */
-    property: string;
-    /** */
-    inverseProperty: string;
-}
+
 
 export const OneToMany = (Type: ({ new() }), options: OneToManyOptions) => {
-    return (target: any, propertyKey: string) => {
-        const oneToMany = getOneToManyMetadata(target) || [];
-        oneToMany.push({ propertyKey, options: { Type, ...options } });
-        Reflect.defineMetadata(metadataKey, oneToMany, target);
+    return (target: any, property: string) => {
+        const config = getTargetConfiguration(target);
+        config.oneToManies.push({ property, options, Type });
     };
 };
-
-export function getOneToManyMetadata(target: any) {
-    return Reflect.getMetadata(metadataKey, target);
-}
