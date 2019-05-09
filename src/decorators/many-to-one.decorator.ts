@@ -1,4 +1,4 @@
-import { getTargetConfiguration, ManyToOneOptions } from "src/utils";
+import { getTargetConfiguration, ManyToOneOptions } from "../utils";
 
 const metadataKey = Symbol('many-to-one');
 

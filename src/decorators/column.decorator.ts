@@ -1,4 +1,4 @@
-import { getTargetConfiguration, ColumnOptions } from "src/utils";
+import { getTargetConfiguration, ColumnOptions } from "../utils";
 
 const columnMetadataKey = Symbol('column');
 

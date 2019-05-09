@@ -1,6 +1,6 @@
 {
   "name": "@feimsoft/remapjs",
-  "version": "0.2.1",
+  "version": "0.2.2",
   "description": "It facilitates returned objects transformation by nosql databases or other means.",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -13,7 +13,6 @@
   },
   "scripts": {
     "test": "jest --config jestconfig.json",
-    "test:local": "ts-node -r tsconfig-paths/register src/test.ts",
     "start": "ts-node -r tsconfig-paths/register src/index.ts",
     "start:dev": "nodemon",
     "build": "tsc"
