@@ -1,0 +1,29 @@
+{
+  "name": "@feimsoft/remapjs",
+  "version": "0.1.1",
+  "description": "It facilitates returned objects transformation by nosql databases or other means.",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "private": false,
+  "author": "FeimSoft",
+  "license": "ISC",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/FeimSoft/remapjs.git"
+  },
+  "scripts": {
+    "test": "jest --config jestconfig.json",
+    "start": "ts-node -r tsconfig-paths/register src/index.ts",
+    "start:dev": "nodemon",
+    "build": "tsc"
+  },
+  "devDependencies": {
+    "@types/node": "^12.0.0",
+    "ts-node": "^8.1.0",
+    "typescript": "^3.4.5",
+    "tsconfig-paths": "^3.8.0"
+  },
+  "dependencies": {
+    "reflect-metadata": "^0.1.13"
+  }
+}
