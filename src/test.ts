@@ -1,5 +1,5 @@
 import { Column, ManyToOne, OneToMany } from "./decorators";
-import { remap } from "./mapper";
+import { remap } from "./remap";
 
 class ManyRelationEntity {
     @Column({ name: 'id' }) id: number;

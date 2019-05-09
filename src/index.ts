@@ -1,6 +1,6 @@
 import 'reflect-metadata';
 import { ManyToOne, OneToMany, Column } from './decorators';
-import { remap } from './mapper';
+import { remap } from './remap';
 
 export {
     ManyToOne, 

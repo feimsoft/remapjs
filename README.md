@@ -14,9 +14,20 @@ yarn:
 yarn add @feimsoft/remapjs
 ```
 
-# How to use
-## Define your entity model
+# Documentation
+## remap 
+```ts
+function remap<T extends { new() }>(RecordType: T, recordset: Object[], options?: MapRecordsetOptions): Array<InstanceType<T>>
+```
+### options
+```ts
+interface MapRecordsetOptions {
+    sources?: MapSource[];
+    ignoreCase?: boolean;
+}
+```
 
+## Define your entity model
 The following decorators are provided to configure the entities.
 
 ### Column
@@ -43,7 +54,7 @@ const mainRecords = [
     { id: 1, name: 'test 1' },
     { id: 2, name: 'test 2' }
 ];
-const outputData = map(DbEntity, mainRecords);
+const outputData = remap(DbEntity, mainRecords);
 ```
 
 ### ManyToOne
@@ -90,7 +101,7 @@ const manyRecords =  [
     { id: 2, name: 'Prueba rel complex 2' }
 ];
 
-const outputData = map(DbEntity, mainRecords, {
+const outputData = remap(DbEntity, mainRecords, {
     sources: [
         { type: ManyRelationEntity, records: manyRecords }
     ]
@@ -138,7 +149,7 @@ const manyRecords =  [
     { id: 2, dbId: 2,  nombre: 'Test rel complex 2' }
 ];
 
-const outputData = map(DbEntity, mainRecords, {
+const outputData = remap(DbEntity, mainRecords, {
     sources: [
         { type: ManyRelationEntity, records: manyRecords }
     ]

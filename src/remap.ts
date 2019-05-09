@@ -14,6 +14,19 @@ interface MapSource {
 
 interface MapRecordsetOptions {
     sources?: MapSource[];
+    ignoreCase?: boolean;
+}
+
+function findValue(record: any, key: string, options: MapRecordsetOptions): any {
+    const keyMatch = options.ignoreCase
+        ? Object.getOwnPropertyNames(record).find(x => x.toLowerCase() === key.toLowerCase())
+        : key;
+
+    if (keyMatch !== undefined) {
+        return record[key];
+    }
+
+    return undefined;
 }
 
 function mapRecord<T extends { new() }>(RecordType: T, record: any, options?: MapRecordsetOptions, context?: ExtraMapRecordContext): InstanceType<T> {
@@ -28,7 +41,7 @@ function mapRecord<T extends { new() }>(RecordType: T, record: any, options?: Ma
     for (const column of columns) {
         const { options: columnOptions } = column;
         const key = preffix + (columnOptions.name || column.propertyKey);
-        const value = record[key];
+        const value = findValue(record, key, options);
         if (value !== undefined) {
             notFoundProperties = false;
         }
@@ -69,7 +82,6 @@ function mapRecord<T extends { new() }>(RecordType: T, record: any, options?: Ma
             notFoundProperties = false;
         }
     }
-
 
     if (!notFoundProperties) {
         return result;
