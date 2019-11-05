@@ -130,9 +130,14 @@ function mapRecord<T extends { new(...args: any[]): T }>(recordTypeOrSourceKey: 
 }
 
 export function remap<T extends { new() }>(RecordType: T, recordset: Object[], options?: MapRecordsetOptions): Array<InstanceType<T>> {
+    const appliedOptions = Object.assign({}, remap.globalConfig, options);
     const output: Array<InstanceType<T>> = [];
     for (const record of recordset) {
-        output.push(mapRecord<T>(RecordType, record, options));
+        output.push(mapRecord<T>(RecordType, record, appliedOptions));
     }
     return output;
 }
+
+remap.globalConfig = {
+    ignoreCase: false
+} as MapRecordsetOptions;
