@@ -1,6 +1,6 @@
 {
   "name": "@feimsoft/remapjs",
-  "version": "0.2.2",
+  "version": "0.3.0",
   "description": "It facilitates returned objects transformation by nosql databases or other means.",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
