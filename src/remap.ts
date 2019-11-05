@@ -1,16 +1,17 @@
-import { getTargetConfiguration, RemapTargetConfiguration } from './utils';
+import { getTargetConfiguration, RemapTargetConfiguration, TypeOrSourceKey } from './utils';
 
 interface MapRecordContext {
     preffix?: string;
 }
 
-interface MapSource {
-    type: ({ new() });
-    records: any[];
+interface MapSource<T> {
+    alias?: string;
+    type: ({ new(...args: any[]): T });
+    records: T[];
 }
 
 interface MapRecordsetOptions {
-    sources?: MapSource[];
+    sources?: MapSource<any>[];
     ignoreCase?: boolean;
 }
 
@@ -30,7 +31,7 @@ function mapColumns(record: any, result: any, preffix: string, config: RemapTarg
     let foundProperties = false;
 
     for (const column of config.columns) {
-        const { options: columnOptions } = column;
+        const columnOptions = Object.assign({}, column.options);
         const key = preffix + (columnOptions.name || column.property);
         const value = findValue(record, key, recordOptions);
         if (value !== undefined) {
@@ -42,16 +43,26 @@ function mapColumns(record: any, result: any, preffix: string, config: RemapTarg
     return foundProperties;
 }
 
+function getSource(typeOrSourceKey: TypeOrSourceKey, sources: MapSource<any>[]): MapSource<any> | null {
+    if (!sources) {
+        return null;
+    }
+    const source = typeof typeOrSourceKey === 'string'
+        ? sources.find(x => x.alias === typeOrSourceKey)
+        : sources.find(x => x.type === typeOrSourceKey);
+    return source || null;
+}
+
 function mapManyToOnes(record: any, result: any, preffix: string, config: RemapTargetConfiguration, recordOptions: MapRecordsetOptions, context: MapRecordContext): boolean {
     let foundProperties = false;
 
     for (const expand of config.manyToOnes) {
-        const source = recordOptions.sources && recordOptions.sources.find(x => x.type === expand.Type);
+        const source = getSource(expand.typeOrSourceKey, recordOptions.sources);
         const relRecord = source && expand.options.matchProperty && expand.options.property
             ? source.records.find(x => x[expand.options.matchProperty] === result[expand.options.property])
             : null;
 
-        const expandResult = mapRecord(expand.Type, relRecord || record, recordOptions, {
+        const expandResult = mapRecord(expand.typeOrSourceKey, relRecord || record, recordOptions, {
             ...context,
             preffix: relRecord ? null : preffix + (expand.options.preffix || expand.property)
         });
@@ -69,13 +80,13 @@ function mapOneToManies(result: any, config: RemapTargetConfiguration, recordOpt
     let foundProperties = false;
 
     for (const expand of config.oneToManies) {
-        const source = recordOptions.sources && recordOptions.sources.find(x => x.type === expand.Type);
+        const source = getSource(expand.typeOrSourceKey, recordOptions.sources);
         const relRecords = source && expand.options.inverseProperty && expand.options.property
             ? source.records.filter(x => x[expand.options.inverseProperty] === result[expand.options.property])
             : undefined;
 
         if (relRecords) {
-            result[expand.property] = relRecords.map(x => mapRecord(expand.Type, x, recordOptions, {
+            result[expand.property] = relRecords.map(x => mapRecord(expand.typeOrSourceKey, x, recordOptions, {
                 ...context,
                 preffix: null
             }));
@@ -86,18 +97,29 @@ function mapOneToManies(result: any, config: RemapTargetConfiguration, recordOpt
     return foundProperties;
 }
 
-function mapRecord<T extends { new() }>(RecordType: T, record: any, options?: MapRecordsetOptions, context?: MapRecordContext): InstanceType<T> {
+function mapRecord<T extends { new(...args: any[]): T }>(recordTypeOrSourceKey: TypeOrSourceKey<T>, rawRecord: any, options?: MapRecordsetOptions, context?: MapRecordContext): InstanceType<T> {
     context = Object.assign({}, context);
     options = Object.assign({}, options);
 
-    const result = new RecordType();
+    const source = getSource(recordTypeOrSourceKey, options.sources);
+    if (source === null && typeof recordTypeOrSourceKey === 'string') {
+        throw new Error('Source type or key not registered in options');
+    }
+
+    const SourceType: { new(...args: any[]): T } = source
+        ? source.type
+        : typeof recordTypeOrSourceKey !== 'string'
+            ? recordTypeOrSourceKey
+            : null;
+
+    const result: InstanceType<T> = (new SourceType()) as InstanceType<T>;
     const config = getTargetConfiguration(result);
 
     const preffix = (context.preffix ? context.preffix + '.' : '');
     let foundProperties = false;
 
-    foundProperties = mapColumns(record, result, preffix, config, options) || foundProperties;
-    foundProperties = mapManyToOnes(record, result, preffix, config, options, context) || foundProperties;
+    foundProperties = mapColumns(rawRecord, result, preffix, config, options) || foundProperties;
+    foundProperties = mapManyToOnes(rawRecord, result, preffix, config, options, context) || foundProperties;
     foundProperties = mapOneToManies(result, config, options, context) || foundProperties;
 
     if (foundProperties) {
@@ -110,7 +132,7 @@ function mapRecord<T extends { new() }>(RecordType: T, record: any, options?: Ma
 export function remap<T extends { new() }>(RecordType: T, recordset: Object[], options?: MapRecordsetOptions): Array<InstanceType<T>> {
     const output: Array<InstanceType<T>> = [];
     for (const record of recordset) {
-        output.push(mapRecord(RecordType, record, options));
+        output.push(mapRecord<T>(RecordType, record, options));
     }
     return output;
 }

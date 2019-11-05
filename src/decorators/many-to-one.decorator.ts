@@ -1,15 +1,15 @@
-import { getTargetConfiguration, ManyToOneOptions } from "../utils";
+import { getTargetConfiguration, ManyToOneOptions, TypeOrSourceKey } from "../utils";
 
 const metadataKey = Symbol('many-to-one');
 
 
 
-export const ManyToOne = (Type: ({ new() }), options?: ManyToOneOptions) => {
+export const ManyToOne = (typeOrSourceKey: TypeOrSourceKey, options?: ManyToOneOptions) => {
     return (target: any, property: string) => {
         const config = getTargetConfiguration(target);
         config.manyToOnes.push({
             property,
-            Type,
+            typeOrSourceKey,
             options: Object.assign({}, options),
         });
     };

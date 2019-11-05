@@ -1,10 +1,12 @@
+export type TypeOrSourceKey<T extends any = any> = ({ new(...args: any[]): T }) | string;
+
 export interface RemapTarget<TOptions> {
     property: string;
     options: TOptions;
 }
 
 export interface RemapTargetWithType<TOptions> extends RemapTarget<TOptions> {
-    Type: ({ new(...args: any): any });
+    typeOrSourceKey: TypeOrSourceKey;
 }
 
 export interface ColumnOptions {

@@ -155,3 +155,47 @@ const outputData = remap(DbEntity, mainRecords, {
     ]
 });
 ```
+
+
+### Source Alias
+If you have more than two registered sources of the same type, you will be interested in assigning an identifier in each source. Let's see an example:
+
+#### Example
+```ts
+class ManyRelationEntity {
+    @Column() id: number;
+    @Column() name: string;
+    @Column() dbId: number;
+}
+
+class DbEntity {
+    @Column() id: number;
+    @Column() name: string;
+    @OneToMany('rel1', { property: 'id', inverseProperty: 'dbId' })
+    relationsMany: ManyRelationEntity[];
+    @OneToMany('rel2', { property: 'id', inverseProperty: 'dbId' })
+    relationsMany: ManyRelationEntity[];
+}
+
+const mainRecords = [
+    { id: 1, name: 'test 1' },
+    { id: 2, name: 'test 2' }
+];
+
+const manyRecords1 =  [
+    { id: 1, dbId: 1, nombre: 'Test rel complex 1' }, 
+    { id: 2, dbId: 2,  nombre: 'Test rel complex 2' }
+];
+
+const manyRecords2 =  [
+    { id: 3, dbId: 1, nombre: 'Test rel complex 3' }, 
+    { id: 4, dbId: 2,  nombre: 'Test rel complex 4' }
+];
+
+const outputData = remap(DbEntity, mainRecords, {
+    sources: [
+        { alias: 'rel1', type: ManyRelationEntity, records: manyRecords1 },
+        { alias: 'rel2', type: ManyRelationEntity, records: manyRecords2 }
+    ]
+});
+```
