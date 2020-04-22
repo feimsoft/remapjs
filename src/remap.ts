@@ -20,11 +20,11 @@ function findValue(record: any, key: string, options: MapRecordsetOptions): any 
         ? Object.getOwnPropertyNames(record).find(x => x.toLowerCase() === key.toLowerCase())
         : key;
 
-    if (keyMatch !== undefined) {
+    if (!!keyMatch) {
         return record[keyMatch];
     }
 
-    return undefined;
+    return null;
 }
 
 function mapColumns(record: any, result: any, preffix: string, config: RemapTargetConfiguration, recordOptions: MapRecordsetOptions): boolean {
@@ -34,7 +34,7 @@ function mapColumns(record: any, result: any, preffix: string, config: RemapTarg
         const columnOptions = Object.assign({}, column.options);
         const key = preffix + (columnOptions.name || column.property);
         const value = findValue(record, key, recordOptions);
-        if (value !== undefined) {
+        if (!!value) {
             foundProperties = true;
         }
         result[column.property] = value;
@@ -67,8 +67,9 @@ function mapManyToOnes(record: any, result: any, preffix: string, config: RemapT
             preffix: relRecord ? null : preffix + (expand.options.preffix || expand.property)
         });
 
-        if (expandResult !== undefined) {
-            result[expand.property] = expandResult;
+        result[expand.property] = expandResult;
+
+        if (!!expandResult) {
             foundProperties = true;
         }
     }
@@ -83,7 +84,7 @@ function mapOneToManies(result: any, config: RemapTargetConfiguration, recordOpt
         const source = getSource(expand.typeOrSourceKey, recordOptions.sources);
         const relRecords = source && expand.options.inverseProperty && expand.options.property
             ? source.records.filter(x => x[expand.options.inverseProperty] === result[expand.options.property])
-            : undefined;
+            : null;
 
         if (relRecords) {
             result[expand.property] = relRecords.map(x => mapRecord(expand.typeOrSourceKey, x, recordOptions, {
@@ -91,6 +92,8 @@ function mapOneToManies(result: any, config: RemapTargetConfiguration, recordOpt
                 preffix: null
             }));
             foundProperties = true;
+        } else {
+            result[expand.property] = null;
         }
     }
 
@@ -125,7 +128,7 @@ function mapRecord<T extends { new(...args: any[]): T }>(recordTypeOrSourceKey: 
     if (foundProperties) {
         return result;
     } else {
-        return undefined;
+        return null;
     }
 }
 
